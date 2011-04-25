@@ -239,8 +239,10 @@ def main(conf, asciiDocOptions):
                     ]
                   , key=os.path.getatime
                   )
-    while sum(os.path.getsize(f) for f in files) > conf.cacheSize and files:
-      os.remove(files.pop())
+    sizes = [os.path.getsize(f) for f in files]
+    while sum(sizes) > conf.cacheSize and files:
+      os.remove(files.pop(0))
+      del sizes[0]
 
 ################################################################################
 if __name__ == "__main__":
