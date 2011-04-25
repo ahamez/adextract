@@ -213,9 +213,7 @@ def main(conf, asciiDocOptions):
       # Create and configure asciidoc.
       asciidoc = asciidocapi.AsciiDocAPI()
       asciidoc.attributes =\
-        dict( (x[0], x[2])
-              for x in (p.partition("=") for p in conf.attributes)
-            )
+        {x[0] : x[2] for x in (p.partition("=") for p in conf.attributes)}
       for o in asciiDocOptions:
         asciidoc.options(o)
 
