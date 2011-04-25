@@ -12,13 +12,17 @@ import sys
 import tempfile
 
 ################################################################################
+VERSION     = "1.0.0"
 DESCRIPTION =\
 """Extract AsciiDoc from source file and output text readable by AsciiDoc."""
 
 ################################################################################
-DEFAULT_CACHE_DIR  = os.path.join( os.path.expanduser('~')
-                                 , '.adextract_cache'
-                                 )
+# Default to C-like commments
+DEFAULT_START_TAG = '/*'
+DEFAULT_END_TAG   = "*/"
+
+################################################################################
+DEFAULT_CACHE_DIR  = os.path.join(os.path.expanduser('~'), '.adextract_cache')
 DEFAULT_CACHE_SIZE = 1024 * 1024 * 10
 
 ################################################################################
@@ -34,6 +38,12 @@ def configure():
                      )
   parser.add_argument( '--cache-dir', action='store'
                      , default=DEFAULT_CACHE_DIR, dest='cacheDir')
+  parser.add_argument( '--start', action='store'
+                     , default=DEFAULT_START_TAG, dest='startTag'
+                     )
+  parser.add_argument( '--end', action='store'
+                     , default=DEFAULT_END_TAG, dest='endTag'
+                     )
   parser.add_argument( 'infile', nargs='?', type=argparse.FileType('r')
                      , default=sys.stdin
                      )
@@ -52,14 +62,11 @@ def configure():
 
   conf.cacheDir = os.path.expanduser(conf.cacheDir)
 
+  conf.errors.write("'" + conf.startTag + "'\n")
+  conf.errors.write("'" + conf.endTag + "'\n")
+
   # Unkown arguments will be passed to the nested AsciiDoc.
   return conf, unkown
-
-################################################################################
-ASCIIDOC_BLOCK_RE = re.compile(
-"""/\*\s*\{(.*?)\}\*/\n?"""
-, re.DOTALL
-)
 
 ################################################################################
 class AsciiDocBlock(object):
@@ -93,12 +100,22 @@ class CodeBlock(object):
 ################################################################################
 def parseBlocks(conf, data, output):
 
+  startTag = re.escape(conf.startTag)
+  endTag   = re.escape(conf.endTag)
+
+  asciiDocRE = re.compile( startTag
+                         + """\{(.*?)\}"""
+                         + endTag
+                         + """\n?"""
+                         , re.DOTALL
+                         )
+
   pos            = 0
   blocks         = []
 
   while pos < len(data):
     
-    m = ASCIIDOC_BLOCK_RE.search(data, pos)
+    m = asciiDocRE.search(data, pos)
 
     if not m:
       break
