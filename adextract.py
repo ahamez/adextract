@@ -191,8 +191,8 @@ def main(conf, asciiDocOptions):
     conf.outfile.write(f.read())
 
   # If there is no caching, the file from the nested AsciiDoc was not moved.
-  # if not conf.doCaching:
-    # os.remove(resFile)
+  if not conf.doCaching:
+    os.remove(resFile)
 
   # Cleanup the cache in a LRU way if needed.
   if conf.doCaching:
