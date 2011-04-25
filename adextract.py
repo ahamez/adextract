@@ -22,7 +22,7 @@ DEFAULT_START_TAG = '/*'
 DEFAULT_END_TAG   = "*/"
 
 ################################################################################
-DEFAULT_CACHE_DIR  = os.path.join(os.path.expanduser('~'), '.adextract_cache')
+DEFAULT_CACHE_DIR  = os.path.join('~', '.adextract_cache')
 DEFAULT_CACHE_SIZE = 1024 * 1024 * 10
 
 ################################################################################
