@@ -1,9 +1,15 @@
 --------------------------------------------------------------------------------
 1. Introduction
 
-adextract.py is a tool to create an AsciiDoc file from an annotated source file.
-The pincipe is really simple: you put AsciiDoc stuff in your languages comments.
-Thus, you can still compile/interpret your code.
+adextract.py is a tool to extract AsciiDoc annotations from a source file. The
+pinciple is really simple: you put AsciiDoc stuff in your source comments and
+adextract.py extract them and put your code into listing blocks. It then handles
+this intermediary result to AsciiDoc. The final result is the output provided by
+AsciiDoc.
+
+Thus, you can still compile/interpret your code, while still fully describing
+it. It is very useful to write a complete documentation with working source
+files.
 
 It works both as an AsciiDoc filter and as a stand-alone tool. In both cases, a
 cache mechanism is provided.
