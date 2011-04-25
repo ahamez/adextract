@@ -79,9 +79,10 @@ def configure():
                             ' Can be repeated.'
                      )
   parser.add_argument( '-b', '--backend', default='html'
-                     , help='Set the backend for AsciiDoc.')
+                     , help='Set the backend for AsciiDoc.'
+                     )
 
-  conf, unkown = parser.parse_known_args()
+  conf, unknown = parser.parse_known_args()
 
   conf.cacheDir = os.path.expanduser(conf.cacheDir)
 
@@ -89,7 +90,7 @@ def configure():
     conf.infile = sys.stderr
 
   # Unkown arguments will be passed to the nested AsciiDoc.
-  return conf, unkown
+  return conf, unknown
 
 ################################################################################
 class AsciiDocBlock(object):
