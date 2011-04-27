@@ -110,19 +110,33 @@ class CodeBlock(object):
 
   """CodeBlock is actually a list of source code lines."""
 
+  currentLine = 1
+  numbered    = False
+
   def __init__(self, arg):
     super(CodeBlock, self).__init__()
-    self.content = arg
+    self.content  = arg
 
-  def __len__(self):
-    return len(self.content)
+  def __str__(self):
 
-  def __iter__(self):
-    for l in self.content:
-      yield l
+    res = ""
+
+    if self.content:
+      res = "----\n"
+      for l in self.content:
+        if self.__class__.numbered:
+          res += "{:02d}    ".format(self.__class__.currentLine) + l + "\n"
+          self.__class__.currentLine += 1
+        else:
+          res += l + "\n"
+      res += "----\n"
+
+    return res
 
 ################################################################################
 def parseBlocks(conf, data, output):
+
+  CodeBlock.numbered = conf.numbered
 
   startTag = re.escape(conf.startTag)
   endTag   = re.escape(conf.endTag)
@@ -151,28 +165,8 @@ def parseBlocks(conf, data, output):
 
   blocks.append( CodeBlock(data[pos:].splitlines()))
 
-  # At this point, the list of blocks is an alternation of CodeBlocks and
-  # AsciiDocBlocks. The former type being always the first one and last one 
-  # of the list of blocks (being possibly empty).
-
-  currentLine = 1
   for b in blocks:
-
-    if isinstance( b, CodeBlock):
-      if b:
-        output.write("----\n")
-        for l in b:
-          if conf.numbered:
-            output.write("{:02d}    ".format(currentLine) + l + "\n")
-            currentLine += 1
-          else:
-            output.write(l + "\n")
-        output.write("----\n")
-      else:
-        continue
-
-    else:
-      output.write(str(b) + "\n")
+    output.write(str(b) + "\n")
 
 ################################################################################
 def main(conf, asciiDocOptions):
