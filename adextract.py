@@ -12,7 +12,7 @@ import sys
 import tempfile
 
 ################################################################################
-VERSION     = "1.0.0"
+VERSION     = "1.0.1"
 DESCRIPTION =\
 """Extract AsciiDoc from source file and output the result of AsciiDoc."""
 
@@ -192,17 +192,23 @@ def main(conf, asciiDocOptions):
   data = conf.infile.read()
 
   # The name of the file that the nested AsciiDoc will create.
-  outFile = hashlib.sha1(data).hexdigest()
+  outFile = None
+  if conf.doCaching:
+    h = hashlib.sha1()
+    h.update(data)
+    h.update("".join(conf.attributes))
+    h.update("".join(asciiDocOptions))
+    h.update(conf.backend)
+    h.update(str(conf.numbered))
+    h.update(conf.startTag)
+    h.update(conf.endTag)
+    h.update(VERSION)
+    outFile = os.path.join(conf.cacheDir,h.hexdigest())
+  else:
+    outFile = "adextract_asciidoc_output.tmp"
 
-  # The path to the file that will be passed to the calling AsciiDoc.
-  # It's an absolute path if caching is enable. Otherwise, it's the
-  # same as outFile.
-  resFile = os.path.join(conf.cacheDir if conf.doCaching else "", outFile) 
+  if not conf.doCaching or not os.path.exists(outFile):
 
-  if not conf.doCaching or not os.path.exists(resFile):
-
-    # The temporary file must be in the same repository as the main
-    # document, otherwise paths like imagesdir would be incorrect.
     with tempfile.TemporaryFile() as tmpFile:
 
       # Fill the temporary file with the data to be processed.
@@ -221,17 +227,13 @@ def main(conf, asciiDocOptions):
       # Launch AsciiDoc.
       asciidoc.execute(tmpFile, outfile=outFile, backend=conf.backend)
 
-      if conf.doCaching:
-        # Move the result into the cache directory.
-        shutil.move(outFile, resFile)
-
   # Handle the result to AsciiDoc.
-  with open(resFile, 'r') as f:
+  with open(outFile, 'r') as f:
     conf.outfile.write(f.read())
 
   # If there is no caching, the file from the nested AsciiDoc was not moved.
   if not conf.doCaching:
-    os.remove(resFile)
+    os.remove(outFile)
 
   # Cleanup the cache in a LRU way if needed.
   if conf.doCaching:
