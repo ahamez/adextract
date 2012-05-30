@@ -24,7 +24,7 @@ cache mechanism is provided.
 3. Usage as an AsciiDoc filter
 
 First, install adextract.py as a filter as stated on the AsciiDoc website:
-http://www.methods.co.nz/asciidoc/manpage.html:
+http://www.methods.co.nz/asciidoc/manpage.html :
 
   asciidoc --filter install adextract.zip
 
